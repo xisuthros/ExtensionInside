@@ -32,7 +32,7 @@ function readFileFromDropEvent(event: JQuery.DropEvent) {
 
     const extension = file.name.endsWith(".m4a");
     const mime_type = [ "audio/m4a", "audio/mp4" ].includes(file.type);
-    if (!(extension && mime_type)) {
+    if (!extension || !mime_type) {
         alert("ONLY M4A FILE IS ALLOWED");
         return null;
     }
@@ -45,25 +45,20 @@ if (window.location.host === "gall.dcinside.com") {
         const source = $("#tx_canvas_source");
         source.on("drop", event => {
             event.preventDefault();
+
             const file = readFileFromDropEvent(event);
-            if (file === null) {
-                return;
-            }
+            if (file === null) return;
             console.log(`filename: ${file?.name}`);
-            let id = $("#id").val();
-            let gall_type = $("#_GALLTYPE_").val();
-            if (gall_type === "MI") {
-                id = "mi$" + id;
-            } else if (gall_type === "PR") {
-                id = "pr$" + id;
-            }
-            browser.runtime.sendMessage({
-                id: id,
-                file: file,
-            }).then((text) => {
-                console.log(text);
-                const target = $(event.delegateTarget);
-                target.val(target.val() + text);
+
+            let id   = $(window).prop("gall_id") ?? $("#gallery_id").val() ?? $("#id").val();
+            let type = $(window).prop("_GALLERY_TYPE_") ?? $("#_GALLTYPE_").val();
+            if (type === "MI") id = `mi$${id}`;
+            if (type === "PR") id = `pr$${id}`;
+
+            const payload = { id, file } as Message;
+            browser.runtime.sendMessage(payload).then((html) => {
+                console.log(html);
+                $(event.delegateTarget).val((_, value) => value + "<br />" + html + "<br />");
             });
         });
         source.on("dragover", event => {
@@ -72,26 +67,21 @@ if (window.location.host === "gall.dcinside.com") {
 
         const wysiwyg = $("#tx_canvas_wysiwyg").contents().find("html body.tx-content-container");
         wysiwyg.on("drop", event => {
-            console.log("file dropped");
             event.preventDefault();
+
             const file = readFileFromDropEvent(event);
-            if (file === null) {
-                return;
-            }
+            if (file === null) return;
             console.log(`filename: ${file?.name}`);
-            let id = $("#id").val();
-            let gall_type = $("#_GALLTYPE_").val();
-            if (gall_type === "MI") {
-                id = "mi$" + id;
-            } else if (gall_type === "PR") {
-                id = "pr$" + id;
-            }
-            browser.runtime.sendMessage({
-                id: id,
-                file: file,
-            }).then((text) => {
-                console.log(text);
-                $(event.delegateTarget).append("<br />" + text);
+
+            let id   = $(window).prop("gall_id") ?? $("#gallery_id").val() ?? $("#id").val();
+            let type = $(window).prop("_GALLERY_TYPE_") ?? $("#_GALLTYPE_").val();
+            if (type === "MI") id = `mi$${id}`;
+            if (type === "PR") id = `pr$${id}`;
+
+            const payload = { id, file } as Message;
+            browser.runtime.sendMessage(payload).then((html) => {
+                console.log(html);
+                $(event.delegateTarget).append("<br />" + html + "<br />");
             });
         });
         wysiwyg.on("dragover", event => {
@@ -100,27 +90,21 @@ if (window.location.host === "gall.dcinside.com") {
     } else if (/^\/((mgallery|mini|person)\/)?board\/view\/?/.test(window.location.pathname)) {
         const comment = $(".view_comment");
         comment.on("drop", "div.cmt_write", event => {
-            console.log("file dropped");
             event.preventDefault();
+
             const file = readFileFromDropEvent(event);
-            if (file === null) {
-                return;
-            }
+            if (file === null) return;
             console.log(`filename: ${file?.name}`);
-            let id = $("#id").val();
-            // @ts-expect-error
-            let gall_type = window._GALLERY_TYPE_;
-            if (gall_type === "MI") {
-                id = "mi$" + id;
-            } else if (gall_type === "PR") {
-                id = "pr$" + id;
-            }
-            browser.runtime.sendMessage({
-                id: id,
-                file: file,
-            }).then((text) => {
-                console.log(text);
-                $(event.delegateTarget).find("textarea").val(text);
+
+            let id   = $(window).prop("gall_id") ?? $("#gallery_id").val() ?? $("#id").val();
+            let type = $(window).prop("_GALLERY_TYPE_") ?? $("#_GALLTYPE_").val();
+            if (type === "MI") id = `mi$${id}`;
+            if (type === "PR") id = `pr$${id}`;
+
+            const payload = { id, file } as Message;
+            browser.runtime.sendMessage(payload).then((html) => {
+                console.log(html);
+                $(event.delegateTarget).find("textarea").val(html);
             });
         });
         comment.on("dragover", "div.cmt_write", event => {

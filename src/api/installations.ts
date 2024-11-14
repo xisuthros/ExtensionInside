@@ -1,7 +1,7 @@
 "use strict";
 
 import { initializeApp as firebaseInitializeApp } from "firebase/app";
-import { getInstallations as firebaseGetInstallations, getId, getToken, onIdChange,  } from "firebase/installations";
+import { getInstallations as firebaseGetInstallations, getId, getToken } from "firebase/installations";
 import Constants from "./const";
 
 const options = {
@@ -13,14 +13,6 @@ const options = {
     messagingSenderId: Constants.FIREBASE.MESSAGING_SENDER_ID,
     appId:             Constants.FIREBASE.APP_ID
 };
-
-window.Headers = new Proxy(window.Headers, {
-    construct(target, argumentsList, newTarget) {
-        const headers = Reflect.construct(target, argumentsList, newTarget);
-        headers.append("User-Agent", "okhttp");
-        return headers;
-    },
-});
 
 const firebaseApp           = firebaseInitializeApp(options);
 const firebaseInstallations = firebaseGetInstallations(firebaseApp);

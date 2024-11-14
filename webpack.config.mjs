@@ -6,9 +6,9 @@ const __dirname = import.meta.dirname;
 export default {
   target: "web",
   node: false,
-  mode: "development",
+  mode: "production",
 
-  devtool: "inline-source-map",
+  devtool: "source-map",
 
   entry: {
     "background_script": "./src/background_script.ts",
@@ -38,6 +38,7 @@ export default {
     new WebExtPlugin({
       artifactsDir: path.resolve(__dirname, "web-ext-artifacts"),
       buildPackage: true,
+      devtools: true,
       overwriteDest: true,
       sourceDir: path.resolve(__dirname, "addon"),
     }),

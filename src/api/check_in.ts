@@ -25,7 +25,6 @@ async function fetchCheckIn(check_in: CheckInStruct) {
         headers: {
             "Accept": "application/json",
             "Content-Type": "application/json",
-            "User-Agent": "okhttp",
         },
         body: body,
         method: "POST",

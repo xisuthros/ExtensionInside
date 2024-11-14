@@ -4,9 +4,20 @@ import { CheckInStruct } from "./check_in";
 import Constants from "./const";
 import { InstallationsStruct } from "./installations";
 
+import { Buffer } from "buffer";
+
 type FCMTokenStruct = {
     token:     string;
     timestamp: number;
+}
+
+async function sha1(message: string) {
+    const msgBuffer  = new TextEncoder().encode(message);
+    const hashBuffer = Buffer.from(await crypto.subtle.digest("SHA-1", msgBuffer));
+    const hashBase64 = hashBuffer.toString("base64");
+    // @ts-expect-error
+    const hashBase64Url = hashBase64.replace(/[+/=]/g, m => ({ "+": "-", "/": "_", "=": "" }[m]))
+    return hashBase64Url;
 }
 
 async function fetchFCMToken(
@@ -31,7 +42,7 @@ async function fetchFCMToken(
         "X-appid":                            firebaseInstallationsId,
         "X-Goog-Firebase-Installations-Auth": firebaseInstallationsAuth,
 
-        "X-firebase-app-name-hash": Constants.FIREBASE.APP_NAME_HASH,
+        "X-firebase-app-name-hash": await sha1(Constants.FIREBASE.APP_NAME),
         "X-gmp_app_id":             Constants.FIREBASE.APP_ID,
         "X-scope":                  "*",
     });
@@ -41,7 +52,6 @@ async function fetchFCMToken(
         headers: {
             "Authorization": `AidLogin ${android_id}:${security_token}`,
             "app": Constants.APPLICATION.PACKAGE_NAME,
-            "User-Agent": "okhttp",
         },
         body: form,
         method: "POST",
