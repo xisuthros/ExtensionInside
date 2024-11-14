@@ -1,7 +1,5 @@
 "use strict";
 
-import NewFormData from "form-data";
-
 async function voiceReple(gall_id: string, app_id: string, file: File) {
     const form = new FormData();
     
@@ -17,7 +15,6 @@ async function voiceReple(gall_id: string, app_id: string, file: File) {
             "Accept": "application/json",
             "User-Agent": "dcinside.app",
         },
-        // @ts-ignore
         body: form,
         referrer: "http://www.dcinside.com",
         method: "POST",

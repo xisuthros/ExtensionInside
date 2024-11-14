@@ -41,7 +41,7 @@ function readFileFromDropEvent(event: JQuery.DropEvent) {
 }
 
 if (window.location.host === "gall.dcinside.com") {
-    if (/\/(mgallery\/)?board\/write\/?/.test(window.location.pathname)) {
+    if (/^\/((mgallery|mini|person)\/)?board\/(write|modify)\/?/.test(window.location.pathname)) {
         const source = $("#tx_canvas_source");
         source.on("drop", event => {
             event.preventDefault();
@@ -51,6 +51,12 @@ if (window.location.host === "gall.dcinside.com") {
             }
             console.log(`filename: ${file?.name}`);
             let id = $("#id").val();
+            let gall_type = $("#_GALLTYPE_").val();
+            if (gall_type === "MI") {
+                id = "mi$" + id;
+            } else if (gall_type === "PR") {
+                id = "pr$" + id;
+            }
             browser.runtime.sendMessage({
                 id: id,
                 file: file,
@@ -60,7 +66,9 @@ if (window.location.host === "gall.dcinside.com") {
                 target.val(target.val() + text);
             });
         });
-        source.on("dragover", event => event.preventDefault());
+        source.on("dragover", event => {
+            event.preventDefault();
+        });
 
         const wysiwyg = $("#tx_canvas_wysiwyg").contents().find("html body.tx-content-container");
         wysiwyg.on("drop", event => {
@@ -72,6 +80,12 @@ if (window.location.host === "gall.dcinside.com") {
             }
             console.log(`filename: ${file?.name}`);
             let id = $("#id").val();
+            let gall_type = $("#_GALLTYPE_").val();
+            if (gall_type === "MI") {
+                id = "mi$" + id;
+            } else if (gall_type === "PR") {
+                id = "pr$" + id;
+            }
             browser.runtime.sendMessage({
                 id: id,
                 file: file,
@@ -80,10 +94,12 @@ if (window.location.host === "gall.dcinside.com") {
                 $(event.delegateTarget).append("<br />" + text);
             });
         });
-        wysiwyg.on("dragover", event => event.preventDefault());
-    } else if (/\/(mgallery\/)?board\/view\/?/.test(window.location.pathname)) {
-        const elements = $("div.cmt_write_box div.cmt_txt_cont div.cmt_write");
-        elements.on("drop", event => {
+        wysiwyg.on("dragover", event => {
+            event.preventDefault();
+        });
+    } else if (/^\/((mgallery|mini|person)\/)?board\/view\/?/.test(window.location.pathname)) {
+        const comment = $(".view_comment");
+        comment.on("drop", "div.cmt_write", event => {
             console.log("file dropped");
             event.preventDefault();
             const file = readFileFromDropEvent(event);
@@ -92,6 +108,13 @@ if (window.location.host === "gall.dcinside.com") {
             }
             console.log(`filename: ${file?.name}`);
             let id = $("#id").val();
+            // @ts-expect-error
+            let gall_type = window._GALLERY_TYPE_;
+            if (gall_type === "MI") {
+                id = "mi$" + id;
+            } else if (gall_type === "PR") {
+                id = "pr$" + id;
+            }
             browser.runtime.sendMessage({
                 id: id,
                 file: file,
@@ -100,6 +123,8 @@ if (window.location.host === "gall.dcinside.com") {
                 $(event.delegateTarget).find("textarea").val(text);
             });
         });
-        elements.on("dragover", event => event.preventDefault());
+        comment.on("dragover", "div.cmt_write", event => {
+            event.preventDefault();
+        });
     }
 }

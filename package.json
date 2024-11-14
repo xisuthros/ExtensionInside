@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "firebase": "^11.0.1",
-    "form-data": "^4.0.1",
     "jquery": "^3.7.1",
     "lossless-json": "^4.0.2"
   }
